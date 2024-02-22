@@ -1,8 +1,9 @@
 package com.bed.ohhferta.domain.alias
 
-import arrow.core.Either
+import kotlinx.coroutines.flow.Flow
 
+import com.bed.ohhferta.domain.result.Result
 import com.bed.ohhferta.domain.entities.OfferEntity
 import com.bed.ohhferta.domain.entities.FailureEntity
 
-typealias DomainOfferType = Either<FailureEntity, List<OfferEntity>>
+typealias DomainOfferType = Result<FailureEntity, List<OfferEntity>>

@@ -1,9 +1,10 @@
 package com.bed.ohhferta.data.alias
 
-import arrow.core.Either
+import kotlinx.coroutines.flow.Flow
 
+import com.bed.ohhferta.domain.result.Result
 import com.bed.ohhferta.framework.clients.responses.PageResponse
 import com.bed.ohhferta.framework.clients.responses.OfferResponse
 import com.bed.ohhferta.framework.clients.responses.FailureResponse
 
-typealias RemoteOfferType = Either<FailureResponse, PageResponse<OfferResponse>>
+typealias RemoteOfferType = Result<FailureResponse, PageResponse<OfferResponse>>

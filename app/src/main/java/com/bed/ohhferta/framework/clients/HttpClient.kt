@@ -1,12 +1,10 @@
 package com.bed.ohhferta.framework.clients
 
-import arrow.core.left
-import arrow.core.right
-import arrow.core.Either
-import com.bed.ohhferta.framework.clients.paths.Paths
-
 import okhttp3.Protocol
 import okhttp3.logging.HttpLoggingInterceptor
+
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -36,6 +34,10 @@ import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.observer.ResponseObserver
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+
+import com.bed.ohhferta.domain.result.Result
+
+import com.bed.ohhferta.framework.clients.paths.Paths
 
 interface HttpClient {
     val http: KtorClient
@@ -118,13 +120,13 @@ class HttpClientImpl : HttpClient {
 
 suspend inline fun <reified F : Any, reified S : Any> KtorClient.request(
     block: HttpRequestBuilder.() -> Unit,
-): Either<F, S> {
+): Result<F, S>  {
     val response = request { block() }
 
     close()
 
     return when (response.status) {
-        HttpStatusCode.OK, HttpStatusCode.Created -> response.body<S>().right()
-        else -> response.body<F>().left()
+        HttpStatusCode.OK, HttpStatusCode.Created -> Result.Success(response.body<S>())
+        else -> Result.Failure(response.body<F>())
     }
 }

@@ -9,7 +9,7 @@ import org.koin.android.ext.koin.androidLogger
 import org.koin.android.ext.koin.androidContext
 
 import com.bed.ohhferta.framework.modules.clientsModule
-import com.bed.ohhferta.framework.modules.useCasesModule
+import com.bed.ohhferta.framework.modules.viewModelsModule
 import com.bed.ohhferta.framework.modules.datasourceModule
 import com.bed.ohhferta.framework.modules.repositoriesModule
 
@@ -26,7 +26,7 @@ class Application : Application() {
                 clientsModule(),
                 datasourceModule,
                 repositoriesModule,
-                useCasesModule,
+                viewModelsModule
             )
         }
     }

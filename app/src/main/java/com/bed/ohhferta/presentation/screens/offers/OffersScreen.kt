@@ -33,6 +33,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import com.bed.ohhferta.R
 
 import com.bed.ohhferta.domain.entities.OfferEntity
+import com.bed.ohhferta.domain.entities.FailureEntity
 
 import com.bed.ohhferta.presentation.shared.states.States
 
@@ -47,8 +48,8 @@ fun OffersScreen(viewModel: OffersViewModel) {
     ) {
         when (state) {
             States.Initial, States.Loading -> IsLoading()
-            is States.Failure -> IsFailure((state as States.Failure).data)
-            is States.Success -> IsSuccessful((state as States.Success<List<OfferEntity>>).data)
+            is States.Failure -> IsFailure((state as States.Failure<FailureEntity>).failure)
+            is States.Success -> IsSuccessful((state as States.Success<List<OfferEntity>>).success)
         }
     }
 }
@@ -59,9 +60,9 @@ private fun IsLoading() {
 }
 
 @Composable
-private fun IsFailure(message: String) {
+private fun IsFailure(failure: FailureEntity) {
     Text(
-        text = message,
+        text = failure.message,
         style = MaterialTheme.typography.titleLarge
     )
 }
