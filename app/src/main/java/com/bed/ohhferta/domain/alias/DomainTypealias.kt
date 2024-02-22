@@ -6,4 +6,4 @@ import com.bed.ohhferta.domain.result.Result
 import com.bed.ohhferta.domain.entities.OfferEntity
 import com.bed.ohhferta.domain.entities.FailureEntity
 
-typealias DomainOfferType = Result<FailureEntity, List<OfferEntity>>
+typealias DomainOfferType = Flow<Result<FailureEntity, List<OfferEntity>>>

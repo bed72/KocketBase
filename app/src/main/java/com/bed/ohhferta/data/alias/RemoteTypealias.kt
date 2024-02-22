@@ -7,4 +7,4 @@ import com.bed.ohhferta.framework.clients.responses.PageResponse
 import com.bed.ohhferta.framework.clients.responses.OfferResponse
 import com.bed.ohhferta.framework.clients.responses.FailureResponse
 
-typealias RemoteOfferType = Result<FailureResponse, PageResponse<OfferResponse>>
+typealias RemoteOfferType = Flow<Result<FailureResponse, PageResponse<OfferResponse>>>

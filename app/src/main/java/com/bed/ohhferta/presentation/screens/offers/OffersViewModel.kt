@@ -31,20 +31,16 @@ class OffersViewModel(
     private fun getAll() {
         _state.update { States.Loading }
 
-        viewModelScope.launch(coroutineRepository.default()) {
-            when (val response = offersRepository.get()) {
-                is Result.Failure -> _state.update { States.Failure(response.failure) }
-                is Result.Success -> _state.update { States.Success(response.success) }
-            }
-//            offersRepository
-//                .get()
-////                .flowOn(coroutineRepository.main())
-//                .collect { response ->
-//                    when (response) {
-//                        is Result.Failure -> _state.update { States.Failure(response.failure) }
-//                        is Result.Success -> _state.update { States.Success(response.success) }
-//                    }
-//                }
+        viewModelScope.launch {
+            offersRepository
+                .get()
+                .flowOn(coroutineRepository.default())
+                .collect { response ->
+                    when (response) {
+                        is Result.Failure -> _state.update { States.Failure(response.failure) }
+                        is Result.Success -> _state.update { States.Success(response.success) }
+                    }
+                }
         }
     }
 }

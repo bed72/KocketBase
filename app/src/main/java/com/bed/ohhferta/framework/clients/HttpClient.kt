@@ -4,7 +4,6 @@ import okhttp3.Protocol
 import okhttp3.logging.HttpLoggingInterceptor
 
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
 
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -38,6 +37,7 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import com.bed.ohhferta.domain.result.Result
 
 import com.bed.ohhferta.framework.clients.paths.Paths
+import kotlinx.coroutines.flow.flow
 
 interface HttpClient {
     val http: KtorClient
@@ -119,14 +119,14 @@ class HttpClientImpl : HttpClient {
 }
 
 suspend inline fun <reified F : Any, reified S : Any> KtorClient.request(
-    block: HttpRequestBuilder.() -> Unit,
-): Result<F, S>  {
+    crossinline block: HttpRequestBuilder.() -> Unit,
+): Flow<Result<F, S>> = flow {
     val response = request { block() }
 
     close()
 
-    return when (response.status) {
-        HttpStatusCode.OK, HttpStatusCode.Created -> Result.Success(response.body<S>())
-        else -> Result.Failure(response.body<F>())
+    when (response.status) {
+        HttpStatusCode.OK, HttpStatusCode.Created -> emit(Result.Success(response.body<S>()))
+        else -> emit(Result.Failure(response.body<F>()))
     }
 }
