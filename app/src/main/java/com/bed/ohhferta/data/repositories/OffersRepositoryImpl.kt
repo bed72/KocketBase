@@ -21,7 +21,7 @@ class OffersRepositoryImpl(
     override suspend fun get(): DomainOfferType =
         datasource
             .get()
-            .take(2)
+            .take(1)
             .flowOn(repository.io())
             .map { response ->
                 when (response) {

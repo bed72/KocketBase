@@ -6,6 +6,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 import com.bed.ohhferta.domain.entities.OfferEntity
+import com.bed.ohhferta.framework.clients.paths.Paths
 
 @Serializable
 data class OfferResponse(
@@ -42,9 +43,14 @@ fun OfferResponse.toEntity() = OfferEntity(
     name,
     price,
     store,
-    thumbnail = "",
+    thumbnail = thumbnail(),
     validate = LocalDate.now(),
     description,
     images,
     categories
 )
+
+private fun OfferResponse.validate() = LocalDate.parse(validate)
+
+private fun OfferResponse.thumbnail() =
+    "${Paths.API.value}/api/files/$collectionName/$id/${images.first()}?thumb=0x300"

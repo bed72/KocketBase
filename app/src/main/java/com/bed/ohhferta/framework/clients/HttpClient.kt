@@ -1,9 +1,7 @@
 package com.bed.ohhferta.framework.clients
 
-import okhttp3.Protocol
-import okhttp3.logging.HttpLoggingInterceptor
-
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -15,12 +13,13 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.json.json
 
 import io.ktor.client.call.body
+import io.ktor.client.engine.cio.CIO
 
 import io.ktor.client.HttpClientConfig
 import io.ktor.client.HttpClient as KtorClient
 
-import io.ktor.client.engine.okhttp.OkHttp
-import io.ktor.client.engine.okhttp.OkHttpConfig
+import io.ktor.client.engine.cio.endpoint
+import io.ktor.client.engine.cio.CIOEngineConfig
 
 import io.ktor.client.request.header
 import io.ktor.client.request.headers
@@ -37,7 +36,6 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import com.bed.ohhferta.domain.result.Result
 
 import com.bed.ohhferta.framework.clients.paths.Paths
-import kotlinx.coroutines.flow.flow
 
 interface HttpClient {
     val http: KtorClient
@@ -57,7 +55,7 @@ class HttpClientImpl : HttpClient {
         ignoreUnknownKeys = true
     }
 
-    override val http get() = KtorClient(OkHttp) {
+    override val http get() = KtorClient(CIO) {
         configureLogging()
         configureRequestDefault()
         configureResponseTimeout()
@@ -65,14 +63,15 @@ class HttpClientImpl : HttpClient {
         configureContentNegotiation()
     }
 
-    private fun HttpClientConfig<OkHttpConfig>.configureLogging() {
+    private fun HttpClientConfig<CIOEngineConfig>.configureLogging() {
         install(Logging) {
             level = LogLevel.INFO
             level = LogLevel.HEADERS
+            filter { it.url.host.contains("http") }
         }
     }
 
-    private fun HttpClientConfig<OkHttpConfig>.configureRequestDefault() {
+    private fun HttpClientConfig<CIOEngineConfig>.configureRequestDefault() {
         install(DefaultRequest) {
             url(Paths.API.value)
             headers {
@@ -81,7 +80,7 @@ class HttpClientImpl : HttpClient {
         }
     }
 
-    private fun HttpClientConfig<OkHttpConfig>.configureResponseObserver() {
+    private fun HttpClientConfig<CIOEngineConfig>.configureResponseObserver() {
         install(ResponseObserver) {
             onResponse { response ->
                 println("\n\n[KTOR HTTP STATUS]: ${response.status.value}\n\n")
@@ -90,7 +89,7 @@ class HttpClientImpl : HttpClient {
         }
     }
 
-    private fun HttpClientConfig<OkHttpConfig>.configureResponseTimeout() {
+    private fun HttpClientConfig<CIOEngineConfig>.configureResponseTimeout() {
         install(HttpTimeout) {
             socketTimeoutMillis = timeout
             requestTimeoutMillis = timeout
@@ -98,21 +97,20 @@ class HttpClientImpl : HttpClient {
         }
     }
 
-    private fun HttpClientConfig<OkHttpConfig>.configureContentNegotiation() {
+    private fun HttpClientConfig<CIOEngineConfig>.configureContentNegotiation() {
         install(ContentNegotiation) {
             json(configureJson)
 
+            @Suppress("MagicNumber")
             engine {
-                config {
-                    followRedirects(false)
-                    protocols(listOf(Protocol.HTTP_1_1, Protocol.HTTP_2))
+                maxConnectionsCount = 1000
+                endpoint {
+                    connectAttempts = 5
+                    pipelineMaxSize = 20
+                    keepAliveTime = 5000
+                    connectTimeout = 5000
+                    maxConnectionsPerRoute = 100
                 }
-
-                addNetworkInterceptor(
-                    HttpLoggingInterceptor().apply {
-                        setLevel(HttpLoggingInterceptor.Level.BODY)
-                    }
-                )
             }
         }
     }
