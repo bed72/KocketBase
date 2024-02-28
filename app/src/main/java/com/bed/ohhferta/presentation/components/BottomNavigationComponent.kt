@@ -17,6 +17,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
 
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -37,7 +38,9 @@ fun BottomNavigationComponent(navController: NavController) {
         BottomNavigationRoutes.Favorites
     )
 
-    NavigationBar {
+    NavigationBar(
+        tonalElevation = 0.dp,
+    ) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentRoute = navBackStackEntry?.destination?.route
 
@@ -71,18 +74,19 @@ fun RootComponent(navController: NavHostController, startDestination: String) {
             BottomNavigationComponent(
                 navController = navController
             )
-        }
-    ) {
-        NavHost(navController = navController, startDestination = startDestination) {
-            navigation(
-                route = RootRoutes.Home.GRAPH,
-                startDestination = RootRoutes.Home.OFFERS_SCREEN
-            ) {
-                offersScreen()
-                storesScreen()
-                favoritesScreen()
+        },
+        content = {
+            NavHost(navController = navController, startDestination = startDestination) {
+                navigation(
+                    route = RootRoutes.Home.GRAPH,
+                    startDestination = RootRoutes.Home.OFFERS_SCREEN
+                ) {
+                    offersScreen()
+                    storesScreen()
+                    favoritesScreen()
+                }
             }
         }
-    }
+    )
 }
 
